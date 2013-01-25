@@ -28,11 +28,11 @@ To use sbt-sublime, simply enter the `gen-sublime` command in the sbt console to
 
 ## Functionality
 
-A lof of this can be [configured](https://github.com/orrsella/sbt-sublime#configuration):
+A lot of this can be [configured](https://github.com/orrsella/sbt-sublime#configuration):
 
 * Creates a `.sublime-project` project file for your project. The default project file created will include the project's base directory and the special external library sources directory. If a project file already exists, the plugin will keep all existing settings in the file and only add the special sources directory. You don't have to worry about losing your Sublime project's settings.
 
-* Automatically fetches sources availabale for all dependencies.
+* Automatically fetches sources available for all dependencies.
 
 * Allows fetching all dependencies transitively – have access to the sources of all libraries that your own dependencies require.
 
@@ -70,7 +70,7 @@ sublimeProjectDir := new File("/Users/orr/Dev/Projects")
 
 * When running the `gen-sublime` command the existing library sources directory is deleted, and a new one is created.
 
-* All library source files are intentially marked as read-only so you won't be able to save changes to them. This is mainly to remind you that changing these sources has *absolutly no* effect on the libraries you're using! **This is important** – just because the sources are available doesn't mean they are used in compilation/runtime. These are merely extracted from the source jars for each dependency, as fetched by sbt. If you want to change and edit the external libraries you're using, *this is not the way*. Add them as an sbt project or manually to your own project as source files, to make any changes and compile. Again, this plugin only allows to quickly add the sources to the same Sublime window for convenience purposes only. Sbt doesn't compile *anything* in the `sublimeLibraryDependenciesDirectoryName` folder!
+* All library source files are intentionally marked as read-only so you won't be able to save changes to them. This is mainly to remind you that changing these sources has *absolutely no* effect on the libraries you're using! **This is important** – just because the sources are available doesn't mean they are used in compilation/runtime. These are merely extracted from the source jars for each dependency, as fetched by sbt. If you want to change and edit the external libraries you're using, *this is not the way*. Add them as an sbt project or manually to your own project as source files, to make any changes and compile. Again, this plugin only allows to quickly add the sources to the same Sublime window for convenience purposes only. Sbt doesn't compile *anything* in the `sublimeLibraryDependenciesDirectoryName` folder!
 
 * If you change any of the library dependencies or the specific settings detailed in [Configured](https://github.com/orrsella/sbt-sublime#configured), you'll need to reload the sbt project with the `reload` command, and then execute `gen-sublime` again. This will add/remove dependencies' sources accordingly, making sure the list in up-to-date.
 
