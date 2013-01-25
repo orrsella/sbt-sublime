@@ -50,7 +50,7 @@ The following custom sbt settings are used:
 
 * `sublimeProjectDir` – Where the generated Sublime project file will be saved. Default value: sbt's `baseDirectory` setting, that is the root of your project. This can be set to anywhere on your machine, it doesn't have to be in the project's root directory (but would be convenient). If you already have a project file, or like to keep all project files together in some special folder, just point there.
 
-To change any/all of these settings, add the following to your `build.sbt` file:
+To change any/all of these settings (to these arbitrary alternative values), add the following to your `build.sbt` file:
 
 ```scala
 sublimeLibraryDependenciesDirectoryName := "ext-lib-src"
