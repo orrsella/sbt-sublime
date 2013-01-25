@@ -39,6 +39,5 @@ case class SublimeProject(
 
 object SublimeProject {
   private implicit val formats = DefaultFormats
-
   def fromFile(file: File): SublimeProject = parse(read(file)).extract[SublimeProject]
 }

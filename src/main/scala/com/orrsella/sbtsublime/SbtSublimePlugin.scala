@@ -36,13 +36,14 @@ object SbtSublimePlugin extends Plugin {
   lazy val sublimeProjectFile = SettingKey[File]("sublime-project-file", "The sublime project file")
 
   lazy val sublimeTaskSetting = sublime <<=
-    (target,
+    (baseDirectory,
+    target,
     updateClassifiers,
     libraryDependencies,
     scalaVersion,
     sublimeLibraryDependenciesDirectory,
     sublimeLibraryDependenciesTransitive,
-    sublimeProjectFile) map { (tar, rep, dep, ver, dir, tran, proj) => gen(tar, rep, dep, ver, dir, tran, proj) }
+    sublimeProjectFile) map { (base, tar, rep, dep, ver, dir, tran, proj) => gen(base, tar, rep, dep, ver, dir, tran, proj) }
 
   override lazy val projectSettings = super.projectSettings ++ Seq(
     sublimeTaskSetting,
@@ -57,6 +58,7 @@ object SbtSublimePlugin extends Plugin {
     cleanFiles <+= (sublimeLibraryDependenciesDirectory) { dir => dir })
 
   private def gen(
+    baseDirectory: File,
     target: File,
     updateReport: UpdateReport,
     dependencies: Seq[ModuleID],
@@ -86,13 +88,14 @@ object SbtSublimePlugin extends Plugin {
     setDirectoryTreeReadOnly(directory)
 
     // create project file
-    val folder = new SublimeProjectFolder(directory.getPath)
+    val libFolder = new SublimeProjectFolder(directory.getPath)
+    val projectFolder = new SublimeProjectFolder(baseDirectory.getPath)
     val project =
       if (projectFile.exists) {
         val existingProject = SublimeProject.fromFile(projectFile)
         if (existingProject.folders.exists(f => f.path == directory.getPath)) existingProject
-        else new SublimeProject(existingProject.folders :+ folder, existingProject.settings, existingProject.build_systems)
-      } else new SublimeProject(Seq(folder))
+        else new SublimeProject(existingProject.folders :+ libFolder, existingProject.settings, existingProject.build_systems)
+      } else new SublimeProject(Seq(projectFolder, libFolder))
 
     project.toFile(projectFile)
   }
