@@ -106,14 +106,14 @@ object SbtSublimePlugin extends Plugin {
     setDirectoryTreeReadOnly(directory)
 
     // create project file
-    val libFolder = new SublimeProjectFolder(directory.getPath)
+    val srcDir = new SublimeProjectFolder(directory.getPath)
     val projectFolder = new SublimeProjectFolder(rootDirectory.getPath)
     val project =
       if (projectFile.exists) {
         val existingProject = SublimeProject.fromFile(projectFile)
         if (existingProject.folders.exists(f => f.path == directory.getPath)) existingProject
-        else new SublimeProject(existingProject.folders :+ libFolder, existingProject.settings, existingProject.build_systems)
-      } else new SublimeProject(Seq(projectFolder, libFolder))
+        else new SublimeProject(existingProject.folders :+ srcDir, existingProject.settings, existingProject.build_systems)
+      } else new SublimeProject(Seq(projectFolder, srcDir))
 
     log.info("Writing project to file: " + projectFile)
     project.toFile(projectFile)
