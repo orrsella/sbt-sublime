@@ -23,7 +23,7 @@ If you want to use it for more than one project, you can add it to your global p
 
 ## Example
 
-As an example, here's the project file generated for [Twitter's bijection](https://github.com/twitter/bijection) project. The first folder, `bijection`, is the project's root as checked out from GitHub. The `External Libraries` folder is the generated external sources folder, showing all available dependencies' sources, readily available for you to browse or search (BTW, in case you're wondering, the theme I'm using is  the immensly popular Soda Light):
+As an example, here's the project file generated for [Twitter's bijection](https://github.com/twitter/bijection) project. The first folder, `bijection`, is the project's root as cloned from GitHub. The `External Libraries` folder is the generated external sources folder, showing all available dependencies' sources, readily available for you to browse or search (BTW, in case you're wondering, the theme I'm using is  the immensely popular Soda Light):
 
 ![alt text](https://raw.github.com/orrsella/sbt-sublime/master/img/screenshot1.png "Generated project for Twitter's bijection")
 
