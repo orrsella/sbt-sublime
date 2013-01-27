@@ -19,7 +19,6 @@ package com.orrsella.sbtsublime
 import java.io.File
 import sbt._
 import sbt.IO._
-import sbt.Keys._
 
 object SbtSublimePlugin extends Plugin {
   lazy val sublimeExternalSourceDirectoryName = SettingKey[String](
@@ -39,20 +38,20 @@ object SbtSublimePlugin extends Plugin {
   lazy val sublimeProjectDir = SettingKey[File]("sublime-project-dir", "The parent directory for the sublime project file")
   lazy val sublimeProjectFile = SettingKey[File]("sublime-project-file", "The sublime project file")
 
-  override lazy val projectSettings = super.projectSettings ++ Seq(
-    commands += statsCommand,
+  override lazy val settings = Seq(
+    Keys.commands += sublimeCommand,
     sublimeExternalSourceDirectoryName := "External Libraries",
-    sublimeExternalSourceDirectoryParent <<= target,
+    sublimeExternalSourceDirectoryParent <<= Keys.target,
     sublimeExternalSourceDirectory <<= (sublimeExternalSourceDirectoryName, sublimeExternalSourceDirectoryParent) {
       (n, p) => new File(p, n)
     },
     sublimeTransitive := false,
-    sublimeProjectName <<= (name) { name => name},
-    sublimeProjectDir <<= baseDirectory,
+    sublimeProjectName <<= (Keys.name) { name => name},
+    sublimeProjectDir <<= Keys.baseDirectory,
     sublimeProjectFile <<= (sublimeProjectName, sublimeProjectDir) { (n, p) => new File(p, n + ".sublime-project") },
-    cleanFiles <+= (sublimeExternalSourceDirectory) { d => d })
+    Keys.cleanFiles <+= (sublimeExternalSourceDirectory) { d => d })
 
-  def statsCommand = Command.command("gen-sublime") { state => doCommand(state) }
+  def sublimeCommand = Command.command("gen-sublime") { state => doCommand(state) }
 
   def doCommand(state: State): State = {
     val log = state.log
