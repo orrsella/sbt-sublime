@@ -21,6 +21,10 @@ If you want to use it for more than one project, you can add it to your global p
 * sbt 0.12.x
 * Scala 2.9.x, 2.10.0
 
+## Example
+
+![alt text](https://github.com/orrsella/sbt-sublime/raw/master/img/screenshot.png "Generated project for Twitter's bijection")
+
 ## Usage
 
 To use sbt-sublime, simply enter the `gen-sublime` command in the sbt console to create the project file. When the command is done, open the new Sublime project created to see your own sources and external library sources.
