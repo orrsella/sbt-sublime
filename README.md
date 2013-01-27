@@ -23,6 +23,8 @@ If you want to use it for more than one project, you can add it to your global p
 
 ## Example
 
+As an example, here's the project file generated for [Twitter's bijection](https://github.com/twitter/bijection) project. The first folder, `bijection`, is the project's root with all sources as checked out from GitHub. The `External Libraries` folder is the generated external sources folder, showing all available dependencies' sources:
+
 ![alt text](https://raw.github.com/orrsella/sbt-sublime/master/img/screenshot1.png "Generated project for Twitter's bijection")
 
 ## Usage
