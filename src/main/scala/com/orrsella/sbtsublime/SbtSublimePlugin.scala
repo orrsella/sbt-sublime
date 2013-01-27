@@ -22,74 +22,92 @@ import sbt.IO._
 import sbt.Keys._
 
 object SbtSublimePlugin extends Plugin {
-  lazy val sublime = TaskKey[Unit]("gen-sublime", "Generate Sublime Text 2 project")
-  lazy val sublimeLibraryDependenciesDirectoryName = SettingKey[String]("sublime-ext-src-dir-name",
-    "The directory name for external sources")
-  lazy val sublimeLibraryDependenciesDirectoryParent = SettingKey[File]("sublime-ext-src-dir-parent",
-    "Parent dir of the external sources dir")
-  lazy val sublimeLibraryDependenciesDirectory = SettingKey[File]("sublime-ext-src-dir", "Directory for external sources")
-  lazy val sublimeLibraryDependenciesTransitive = SettingKey[Boolean]("sublime-ext-src-transitive",
-    "Indicate whether to add sources for all dependencies transitively (including the libraries that your own " +
-    "dependencies require)")
+  lazy val sublimeExternalSourceDirectoryName = SettingKey[String](
+    "sublime-external-source-directory-name", "The directory name for external sources")
+
+  lazy val sublimeExternalSourceDirectoryParent = SettingKey[File](
+    "sublime-external-source-directory-parent", "Parent dir of the external sources dir")
+
+  lazy val sublimeExternalSourceDirectory = SettingKey[File](
+    "sublime-external-source-directory", "Directory for external sources")
+
+  lazy val sublimeTransitive = SettingKey[Boolean](
+      "sublime-transitive",
+      "Indicate whether to add sources for all dependencies transitively (including libraries that dependencies require)")
+
   lazy val sublimeProjectName = SettingKey[String]("sublime-project-name", "The name of the sublime project file")
   lazy val sublimeProjectDir = SettingKey[File]("sublime-project-dir", "The parent directory for the sublime project file")
   lazy val sublimeProjectFile = SettingKey[File]("sublime-project-file", "The sublime project file")
 
-  lazy val sublimeTaskSetting = sublime <<=
-    (baseDirectory,
-    target,
-    updateClassifiers,
-    libraryDependencies,
-    scalaVersion,
-    sublimeLibraryDependenciesDirectory,
-    sublimeLibraryDependenciesTransitive,
-    sublimeProjectFile) map { (base, tar, rep, dep, ver, dir, tran, proj) => gen(base, tar, rep, dep, ver, dir, tran, proj) }
-
   override lazy val projectSettings = super.projectSettings ++ Seq(
-    sublimeTaskSetting,
-    sublimeLibraryDependenciesDirectoryName := "External Libraries",
-    sublimeLibraryDependenciesDirectoryParent <<= target,
-    sublimeLibraryDependenciesDirectory <<=
-      (sublimeLibraryDependenciesDirectoryName, sublimeLibraryDependenciesDirectoryParent) { (n, p) => new File(p, n) },
-    sublimeLibraryDependenciesTransitive := true,
-    sublimeProjectName <<= (name) { (name) => name},
+    commands += statsCommand,
+    sublimeExternalSourceDirectoryName := "External Libraries",
+    sublimeExternalSourceDirectoryParent <<= target,
+    sublimeExternalSourceDirectory <<= (sublimeExternalSourceDirectoryName, sublimeExternalSourceDirectoryParent) {
+      (n, p) => new File(p, n)
+    },
+    sublimeTransitive := false,
+    sublimeProjectName <<= (name) { name => name},
     sublimeProjectDir <<= baseDirectory,
     sublimeProjectFile <<= (sublimeProjectName, sublimeProjectDir) { (n, p) => new File(p, n + ".sublime-project") },
-    cleanFiles <+= (sublimeLibraryDependenciesDirectory) { dir => dir })
+    cleanFiles <+= (sublimeExternalSourceDirectory) { d => d })
 
-  private def gen(
-    baseDirectory: File,
-    target: File,
-    updateReport: UpdateReport,
-    dependencies: Seq[ModuleID],
-    scalaVersion: String,
-    directory: File,
-    transitive: Boolean,
-    projectFile: File) = {
+  def statsCommand = Command.command("gen-sublime") { state => doCommand(state)}
+
+  def doCommand(state: State): State = {
+    val log = state.log
+    val extracted: Extracted = Project.extract(state)
+    val structure = extracted.structure
+    val currentRef = extracted.currentRef
+    val projectRefs = structure.allProjectRefs
+    // val rootDirectory = structure.root
+
+    lazy val directory = sublimeExternalSourceDirectory in currentRef get structure.data get
+    lazy val transitive = sublimeTransitive in currentRef get structure.data get
+    lazy val projectFile = sublimeProjectFile in currentRef get structure.data get
+    lazy val scalaVersion = Keys.scalaVersion in currentRef get structure.data get
+    lazy val rootDirectory = Keys.baseDirectory in currentRef get structure.data get
+
+    log.info("Generating Sublime project for root directory: " + rootDirectory)
+    log.info("Getting dependency libraries sources transitively: " + transitive)
+    log.info("Saving external sources to: " + directory)
+
+    val dependencies: Seq[ModuleID] = projectRefs.flatMap {
+      projectRef => Keys.libraryDependencies in projectRef get structure.data
+    }.flatten.distinct
+
+    val dependencyNames: Seq[String] = dependencies.map(d => d.name)
+
+    val dependencyArtifacts: Seq[(Artifact, File)] = projectRefs.flatMap {
+      projectRef => EvaluateTask(structure, Keys.updateClassifiers, state, projectRef) match {
+        case Some((state, Value(report))) => report.configurations.flatMap(_.modules.flatMap(_.artifacts))
+        case _ => Seq()
+      }
+    }.distinct
 
     // cleanup
     delete(directory)
     createDirectory(directory)
 
-    // calc jars list
-    val dependenciesNames = dependencies.map(d => d.organization + ":" + d.name)
-    val sourceJars: Seq[File] = updateReport.configurations.flatMap {
-      if (transitive)
-        c => c.modules.flatMap(_.artifacts).filter(_._1.`type` == Artifact.SourceType).map(_._2)
-      else
-        c => c.modules.filter(
-          m => dependenciesNames.contains(
-            m.module.organization + ":" + m.module.name.replace("_" + scalaVersion, ""))
-          ).flatMap(_.artifacts).filter(_._1.`type` == Artifact.SourceType).map(_._2)
-    }.distinct
+    // filter artifacts for transitive and sources only
+    val filteredArtifacts =
+      if (transitive) dependencyArtifacts
+      // else dependencyArtifacts.filter(pair => dependencyNames.contains(pair._1.name.replace("_" + scalaVersion, "")))
+      else dependencyArtifacts.filter(pair => dependencyNames.exists(name => pair._1.name.startsWith(name)))
+
+    val sourceJars = filteredArtifacts.filter(pair => pair._1.`type` == Artifact.SourceType).map(_._2)
+    log.info("Adding the following to external libraries:")
+    sourceJars.foreach(jar => log.info("  " + jar.getName))
 
     // extract jars and make read-only
-    sourceJars.foreach(j => unzip(j, new File(directory, j.getName.replace("-sources.jar", ""))))
+    log.info("Extracting jars to external sources directory")
+    sourceJars.foreach(jar => unzip(jar, new File(directory, jar.getName.replace("-sources.jar", ""))))
+    log.info("Marking all files in sources directory as read-only")
     setDirectoryTreeReadOnly(directory)
 
     // create project file
     val libFolder = new SublimeProjectFolder(directory.getPath)
-    val projectFolder = new SublimeProjectFolder(baseDirectory.getPath)
+    val projectFolder = new SublimeProjectFolder(rootDirectory.getPath)
     val project =
       if (projectFile.exists) {
         val existingProject = SublimeProject.fromFile(projectFile)
@@ -97,7 +115,11 @@ object SbtSublimePlugin extends Plugin {
         else new SublimeProject(existingProject.folders :+ libFolder, existingProject.settings, existingProject.build_systems)
       } else new SublimeProject(Seq(projectFolder, libFolder))
 
+    log.info("Writing project to file: " + projectFile)
     project.toFile(projectFile)
+
+    // return unchanged state
+    state
   }
 
   private def setDirectoryTreeReadOnly(dir: File): Unit = {
