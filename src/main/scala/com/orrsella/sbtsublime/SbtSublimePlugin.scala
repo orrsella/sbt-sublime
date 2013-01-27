@@ -52,7 +52,7 @@ object SbtSublimePlugin extends Plugin {
     sublimeProjectFile <<= (sublimeProjectName, sublimeProjectDir) { (n, p) => new File(p, n + ".sublime-project") },
     cleanFiles <+= (sublimeExternalSourceDirectory) { d => d })
 
-  def statsCommand = Command.command("gen-sublime") { state => doCommand(state)}
+  def statsCommand = Command.command("gen-sublime") { state => doCommand(state) }
 
   def doCommand(state: State): State = {
     val log = state.log
