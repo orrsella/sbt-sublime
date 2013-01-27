@@ -19,7 +19,6 @@ If you want to use it for more than one project, you can add it to your global p
 ### Requirements
 
 * sbt 0.12.x
-
 * Scala 2.9.x, 2.10.0
 
 ## Usage
