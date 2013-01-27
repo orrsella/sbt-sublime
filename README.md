@@ -23,7 +23,7 @@ If you want to use it for more than one project, you can add it to your global p
 
 ## Example
 
-![alt text](https://github.com/orrsella/sbt-sublime/raw/master/img/screenshot.png "Generated project for Twitter's bijection")
+![alt text](https://raw.github.com/orrsella/sbt-sublime/master/img/screenshot1.png "Generated project for Twitter's bijection")
 
 ## Usage
 
