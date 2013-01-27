@@ -20,7 +20,7 @@ import java.io.File
 import sbt._
 import sbt.IO._
 
-object SbtSublimePlugin extends Plugin {
+object SublimePlugin extends Plugin {
   lazy val sublimeExternalSourceDirectoryName = SettingKey[String](
     "sublime-external-source-directory-name", "The directory name for external sources")
 
@@ -51,7 +51,7 @@ object SbtSublimePlugin extends Plugin {
     sublimeProjectFile <<= (sublimeProjectName, sublimeProjectDir) { (n, p) => new File(p, n + ".sublime-project") },
     Keys.cleanFiles <+= (sublimeExternalSourceDirectory) { d => d })
 
-  def sublimeCommand = Command.command("gen-sublime") { state => doCommand(state) }
+  lazy val sublimeCommand = Command.command("gen-sublime") { state => doCommand(state) }
 
   def doCommand(state: State): State = {
     val log = state.log
