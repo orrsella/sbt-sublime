@@ -18,7 +18,6 @@ package com.orrsella.sbtsublime
 
 import java.io.File
 import sbt._
-import sbt.IO._
 
 object SublimePlugin extends Plugin {
   lazy val sublimeExternalSourceDirectoryName = SettingKey[String](
@@ -85,8 +84,8 @@ object SublimePlugin extends Plugin {
     }.distinct
 
     // cleanup
-    delete(directory)
-    createDirectory(directory)
+    sbt.IO.delete(directory)
+    sbt.IO.createDirectory(directory)
 
     // filter artifacts for transitive and sources only
     val filteredArtifacts =
@@ -100,7 +99,7 @@ object SublimePlugin extends Plugin {
 
     // extract jars and make read-only
     log.info("Extracting jars to external sources directory")
-    sourceJars.foreach(jar => unzip(jar, new File(directory, jar.getName.replace("-sources.jar", ""))))
+    sourceJars.foreach(jar => sbt.IO.unzip(jar, new File(directory, jar.getName.replace("-sources.jar", ""))))
     log.info("Marking all files in sources directory as read-only")
     setDirectoryTreeReadOnly(directory)
 
