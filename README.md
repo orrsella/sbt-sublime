@@ -16,6 +16,11 @@ addSbtPlugin("com.orrsella" % "sbt-sublime" % "1.0.3")
 
 If you want to use it for more than one project, you can add it to your global plugins file, usually found at: `~/.sbt/plugins/plugins.sbt` and then have it available for all sbt projects. See [Using Plugins](http://www.scala-sbt.org/release/docs/Getting-Started/Using-Plugins.html) for additional information on sbt plugins.
 
+### Requirements
+
+* sbt 0.12.x
+* Scala 2.9.x, 2.10.0
+
 ### Troubleshooting
 
 If you added the plugin globally but still don't have the `gen-sublime` command available, try:
@@ -28,11 +33,6 @@ $ sbt
 ```
 
 Essentially, this enters the `project` project, cleans it, and returns back to your main project (remember that [sbt is recursive](http://www.scala-sbt.org/release/docs/Getting-Started/Full-Def.html#sbt-is-recursive) – each `project/` folder is an sbt project in itself!).
-
-### Requirements
-
-* sbt 0.12.x
-* Scala 2.9.x, 2.10.0
 
 ## Example
 
