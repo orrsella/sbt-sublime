@@ -60,7 +60,7 @@ The following custom sbt settings are used:
 
 * `sublimeExternalSourceDirectoryName` – The name of the directory containing all external library source files. Default value: `External Libraries`.
 
-* `sublimeExternalSourceDirectoryParent` – Where the external library sources directory will be located. Default value: sbt's `target` setting. Note that this directory is considered an "artifact" – running the `clean` command will delete it.
+* `sublimeExternalSourceDirectoryParent` – Where the external library sources directory will be located. Default value: sbt's `target` setting. If left unchanged, running the `clean` command will delete the sources folder. To have it persist, change it's parent away from the target folder.
 
 * `sublimeTransitive` – Indicates whether dependencies should be added transitively (recursively) for all libraries (including the libraries that your own dependencies require – "your dependencies' dependencies"). For large projects, this can amount to dozens of libraries pretty quickly, meaning that *a lot* of code will be searched and handled by Sublime. See if appropriate for your own project. Default value: `false`.
 
@@ -84,7 +84,7 @@ sublimeProjectDir := new File("/Users/orr/Dev/Projects")
 
 ## Notes
 
-* The external library sources directory is considered as artifacts, and so running the `clean` command will delete it. But don't worry – you can always re-run `gen-sublime` to get it back!
+* The external library sources directory is considered as artifacts and located by default in `target`, and so running the `clean` command will delete it. But don't worry – you can always re-run `gen-sublime` to get it back, or change `sublimeExternalSourceDirectoryParent` to have it reside out side of the `target` folder and not get deleted during `clean`.
 
 * When running the `gen-sublime` command the existing library sources directory is deleted, and a new one is created.
 

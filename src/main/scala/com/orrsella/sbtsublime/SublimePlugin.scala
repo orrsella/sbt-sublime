@@ -47,8 +47,7 @@ object SublimePlugin extends Plugin {
     sublimeTransitive := false,
     sublimeProjectName <<= (Keys.name) { name => name},
     sublimeProjectDir <<= Keys.baseDirectory,
-    sublimeProjectFile <<= (sublimeProjectName, sublimeProjectDir) { (n, p) => new File(p, n + ".sublime-project") },
-    Keys.cleanFiles <+= (sublimeExternalSourceDirectory) { d => d })
+    sublimeProjectFile <<= (sublimeProjectName, sublimeProjectDir) { (n, p) => new File(p, n + ".sublime-project") })
 
   lazy val sublimeCommand = Command.command("gen-sublime") { state => doCommand(state) }
 
