@@ -79,7 +79,7 @@ sublimeTransitive := true
 
 sublimeProjectName := "MySublProjectFile"
 
-sublimeProjectDir := new File("/Users/orr/Dev/Projects")
+sublimeProjectDir := new java.io.File("/Users/orr/Dev/Projects")
 ```
 
 ## Notes
