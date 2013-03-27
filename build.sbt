@@ -4,14 +4,14 @@ name := "sbt-sublime"
 
 organization := "com.orrsella"
 
-version := "1.0.5-SNAPSHOT"
+version := "1.0.5"
 
-libraryDependencies += "org.json4s" %% "json4s-native" % "3.1.0"
+libraryDependencies += "org.json4s" % "json4s-native_2.9.2" % "3.2.2"
 
-scalaVersion := "2.9.2"
+scalaVersion := "2.10.1"
 
 // publishing related
-crossScalaVersions := Seq("2.9.0", "2.9.1", "2.9.2", "2.10.0")
+crossScalaVersions := Seq("2.9.0", "2.9.1", "2.9.2", "2.9.3", "2.10.0", "2.10.1")
 
 publishTo <<= version { v: String =>
   val nexus = "https://oss.sonatype.org/"
