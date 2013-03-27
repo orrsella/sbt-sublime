@@ -4,7 +4,7 @@ name := "sbt-sublime"
 
 organization := "com.orrsella"
 
-version := "1.0.5"
+version := "1.0.6-SNAPSHOT"
 
 libraryDependencies += "org.json4s" % "json4s-native_2.9.2" % "3.2.2"
 
