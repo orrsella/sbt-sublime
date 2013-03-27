@@ -59,11 +59,11 @@ object SublimePlugin extends Plugin {
     val projectRefs = structure.allProjectRefs
     // val rootDirectory = structure.root
 
-    lazy val directory = sublimeExternalSourceDirectory in currentRef get structure.data get
-    lazy val transitive = sublimeTransitive in currentRef get structure.data get
-    lazy val projectFile = sublimeProjectFile in currentRef get structure.data get
-    lazy val scalaVersion = Keys.scalaVersion in currentRef get structure.data get
-    lazy val rootDirectory = Keys.baseDirectory in currentRef get structure.data get
+    lazy val directory = (sublimeExternalSourceDirectory in currentRef get structure.data).get
+    lazy val transitive = (sublimeTransitive in currentRef get structure.data).get
+    lazy val projectFile = (sublimeProjectFile in currentRef get structure.data).get
+    lazy val scalaVersion = (Keys.scalaVersion in currentRef get structure.data).get
+    lazy val rootDirectory = (Keys.baseDirectory in currentRef get structure.data).get
 
     log.info("Generating Sublime project for root directory: " + rootDirectory)
     log.info("Getting dependency libraries sources transitively: " + transitive)
