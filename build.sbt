@@ -4,9 +4,9 @@ name := "sbt-sublime"
 
 organization := "com.orrsella"
 
-version := "1.0.9-SNAPSHOT"
+version := "1.0.10-SNAPSHOT"
 
-libraryDependencies += "org.json4s" %% "json4s-native" % "3.2.4"
+libraryDependencies += "org.json4s" %% "json4s-native" % "3.2.5"
 
 // scalaVersion in Global := "2.10.2"
 // scalacOptions ++= Seq("-feature")
@@ -14,8 +14,8 @@ libraryDependencies += "org.json4s" %% "json4s-native" % "3.2.4"
 // publishing
 crossScalaVersions <<= sbtVersion { ver =>
   ver match {
-    case "0.12.4" => Seq("2.9.0", "2.9.1", "2.9.2", "2.9.3", "2.10.2")
-    case "0.13.0" => Seq("2.10.2")
+    case "0.12.4" => Seq("2.9.0", "2.9.1", "2.9.2", "2.9.3", "2.10.3")
+    case "0.13.0" => Seq("2.10.3")
     case _ => sys.error("Unknown sbt version")
   }
 }

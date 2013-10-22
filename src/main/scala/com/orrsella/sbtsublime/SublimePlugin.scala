@@ -39,15 +39,15 @@ object SublimePlugin extends Plugin {
 
   override lazy val settings = Seq(
     Keys.commands += sublimeCommand,
-    sublimeExternalSourceDirectoryName := "External Libraries",
-    sublimeExternalSourceDirectoryParent <<= Keys.target,
-    sublimeExternalSourceDirectory <<= (sublimeExternalSourceDirectoryName, sublimeExternalSourceDirectoryParent) {
+    sublimeExternalSourceDirectoryName <<= sublimeExternalSourceDirectoryName ?? "External Libraries",
+    sublimeExternalSourceDirectoryParent <<= sublimeExternalSourceDirectoryParent or Keys.target,
+    sublimeExternalSourceDirectory <<= sublimeExternalSourceDirectory or (sublimeExternalSourceDirectoryName, sublimeExternalSourceDirectoryParent) {
       (n, p) => new File(p, n)
     },
-    sublimeTransitive := false,
-    sublimeProjectName <<= (Keys.name) { name => name},
-    sublimeProjectDir <<= Keys.baseDirectory,
-    sublimeProjectFile <<= (sublimeProjectName, sublimeProjectDir) { (n, p) => new File(p, n + ".sublime-project") })
+    sublimeTransitive <<= sublimeTransitive ?? false,
+    sublimeProjectName <<= sublimeProjectName or Keys.name,
+    sublimeProjectDir <<= sublimeProjectDir or Keys.baseDirectory,
+    sublimeProjectFile <<= sublimeProjectFile or (sublimeProjectName, sublimeProjectDir) { (n, p) => new File(p, n + ".sublime-project") })
 
   lazy val sublimeCommand = Command.command("gen-sublime") { state => doCommand(state) }
 
