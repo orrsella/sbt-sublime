@@ -16,7 +16,6 @@
 
 package com.orrsella.sbtsublime
 
-import java.io.File
 import sbt._
 
 object SublimePlugin extends Plugin {
@@ -38,7 +37,7 @@ object SublimePlugin extends Plugin {
   lazy val sublimeProjectFile = SettingKey[File]("sublime-project-file", "The sublime project file")
 
   override lazy val settings = Seq(
-    Keys.commands += sublimeCommand,
+    Keys.commands ++= Seq(sublimeCommand, sublimeCommandCamel),
     sublimeExternalSourceDirectoryName <<= sublimeExternalSourceDirectoryName ?? "External Libraries",
     sublimeExternalSourceDirectoryParent <<= sublimeExternalSourceDirectoryParent or Keys.target,
     sublimeExternalSourceDirectory <<= sublimeExternalSourceDirectory or (sublimeExternalSourceDirectoryName, sublimeExternalSourceDirectoryParent) {
@@ -50,6 +49,7 @@ object SublimePlugin extends Plugin {
     sublimeProjectFile <<= sublimeProjectFile or (sublimeProjectName, sublimeProjectDir) { (n, p) => new File(p, n + ".sublime-project") })
 
   lazy val sublimeCommand = Command.command("gen-sublime") { state => doCommand(state) }
+  lazy val sublimeCommandCamel = Command.command("genSublime") { state => doCommand(state) }
 
   def doCommand(state: State): State = {
     val log = state.log
@@ -57,7 +57,6 @@ object SublimePlugin extends Plugin {
     val structure = extracted.structure
     val currentRef = extracted.currentRef
     val projectRefs = structure.allProjectRefs
-    // val rootDirectory = structure.root
 
     lazy val directory = (sublimeExternalSourceDirectory in currentRef get structure.data).get
     lazy val transitive = (sublimeTransitive in currentRef get structure.data).get
@@ -77,7 +76,7 @@ object SublimePlugin extends Plugin {
 
     val dependencyArtifacts: Seq[(Artifact, File)] = projectRefs.flatMap {
       projectRef => EvaluateTask(structure, Keys.updateClassifiers, state, projectRef) match {
-        case Some((state, Value(report))) => report.configurations.flatMap(_.modules.flatMap(_.artifacts))
+        case Some((_, Value(report))) => report.configurations.flatMap(_.modules.flatMap(_.artifacts))
         case _ => Seq()
       }
     }.distinct
@@ -113,7 +112,7 @@ object SublimePlugin extends Plugin {
       } else new SublimeProject(Seq(projectFolder, srcDir))
 
     log.info("Writing project to file: " + projectFile)
-    project.toFile(projectFile)
+    project.writeFile(projectFile)
 
     // return unchanged state
     state
@@ -122,7 +121,7 @@ object SublimePlugin extends Plugin {
   private def setDirectoryTreeReadOnly(dir: File): Unit = {
     for (file <- dir.listFiles) {
       if (file.isDirectory) setDirectoryTreeReadOnly(file)
-      else file.setReadOnly
+      else file.setReadOnly()
     }
   }
 }

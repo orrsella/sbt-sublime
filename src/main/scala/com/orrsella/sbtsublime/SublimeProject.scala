@@ -34,7 +34,7 @@ case class SublimeProject(
     build_systems: Option[JValue] = None) {
 
   private implicit val formats = DefaultFormats
-  def toFile(file: File): Unit = write(file, pretty(render(decompose(this))))
+  def writeFile(file: File): Unit = write(file, pretty(render(decompose(this))))
 }
 
 object SublimeProject {
