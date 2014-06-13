@@ -17,7 +17,7 @@ releaseSettings
 crossScalaVersions <<= sbtVersion { ver =>
   ver match {
     case "0.12.4" => Seq("2.9.0", "2.9.1", "2.9.2", "2.9.3", "2.10.4", "2.11.1")
-    case "0.13.0" => Seq("2.10.4", "2.11.1")
+    case "0.13.5" => Seq("2.10.4", "2.11.1")
     case _ => sys.error("Unknown sbt version")
   }
 }
