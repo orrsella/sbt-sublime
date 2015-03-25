@@ -61,7 +61,6 @@ object SublimePlugin extends Plugin {
     lazy val directory = (sublimeExternalSourceDirectory in currentRef get structure.data).get
     lazy val transitive = (sublimeTransitive in currentRef get structure.data).get
     lazy val projectFile = (sublimeProjectFile in currentRef get structure.data).get
-    lazy val scalaVersion = (Keys.scalaVersion in currentRef get structure.data).get
     lazy val rootDirectory = (Keys.baseDirectory in currentRef get structure.data).get
 
     log.info("Generating Sublime project for root directory: " + rootDirectory)
@@ -112,7 +111,7 @@ object SublimePlugin extends Plugin {
       } else new SublimeProject(Seq(projectFolder, srcDir))
 
     log.info("Writing project to file: " + projectFile)
-    project.writeFile(projectFile)
+    SublimeProject.writeFile(projectFile, project)
 
     // return unchanged state
     state

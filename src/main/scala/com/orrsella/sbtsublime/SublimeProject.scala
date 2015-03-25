@@ -17,27 +17,19 @@
 package com.orrsella.sbtsublime
 
 import java.io.File
-import org.json4s._
-import org.json4s.Extraction._
-import org.json4s.native.JsonMethods._
 import sbt.IO._
-
-case class SublimeProjectFolder(
-    path: String,
-    name: Option[String] = None,
-    file_exclude_patterns: Option[Seq[String]] = None,
-    folder_exclude_patterns: Option[Seq[String]] = None)
+import spray.json.DefaultJsonProtocol._
+import spray.json._
 
 case class SublimeProject(
     folders: Seq[SublimeProjectFolder],
-    settings: Option[JValue] = None,
-    build_systems: Option[JValue] = None) {
-
-  private implicit val formats = DefaultFormats
-  def writeFile(file: File): Unit = write(file, pretty(render(decompose(this))))
-}
+    settings: Option[JsValue] = None,
+    build_systems: Option[JsValue] = None)
 
 object SublimeProject {
-  private implicit val formats = DefaultFormats
-  def fromFile(file: File): SublimeProject = parse(read(file)).extract[SublimeProject]
+  private implicit val folderFormat: JsonFormat[SublimeProjectFolder] = jsonFormat4(SublimeProjectFolder.apply)
+  private implicit val projectFormat: JsonFormat[SublimeProject] = jsonFormat3(SublimeProject.apply)
+
+  def fromFile(file: File): SublimeProject = read(file).parseJson.convertTo[SublimeProject]
+  def writeFile(file: File, project: SublimeProject): Unit = write(file, project.toJson.prettyPrint)
 }
