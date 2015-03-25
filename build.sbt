@@ -56,4 +56,6 @@ pomExtra := (
 )
 
 // release
+import sbtrelease.ReleasePlugin.ReleaseKeys._
+
 publishArtifactsAction := PgpKeys.publishSigned.value
