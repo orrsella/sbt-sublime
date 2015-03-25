@@ -54,3 +54,6 @@ pomExtra := (
     </developer>
   </developers>
 )
+
+// release
+publishArtifactsAction := PgpKeys.publishSigned.value
