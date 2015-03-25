@@ -1,6 +1,6 @@
 # sbt-sublime
 
-An [sbt](http://www.scala-sbt.org/) (Simple Build Tool) plugin for generating [Sublime Text 2](http://www.sublimetext.com/) (or 3 – [now in beta](http://www.sublimetext.com/blog/articles/sublime-text-3-beta)) project files with library dependencies' sources. See [example screenshot](https://github.com/orrsella/sbt-sublime#example).
+An [sbt](http://www.scala-sbt.org/) (Simple Build Tool) plugin for generating [Sublime Text](http://www.sublimetext.com/) 2 or 3 project files with library dependencies' sources. See [example screenshot](https://github.com/orrsella/sbt-sublime#example).
 
 The main goal of this plugin is to make dependency source files easily available in the project's Sublime window. This enables the ability to simultaneously code and browse all your dependencies' source code, similar to functionality that IntelliJ and other IDEs provide you with. This also means that external library source code plays nice with Sublime's excellent Goto Anything feature. It could also be useful for split editing. Don't remember a method's signature in `scala.collection.immutable.List`? Just hit CMD+T, enter "List" and the source is right in front of you (the scala-library is always a dependency so you have the entire Scala language code base a click away).
 
