@@ -15,8 +15,8 @@ releaseSettings
 // publishing
 crossScalaVersions <<= sbtVersion { ver =>
   ver match {
-    case v if v.startsWith("0.12.") => Seq("2.9.3", "2.10.5", "2.11.6")
-    case v if v.startsWith("0.13.") => Seq("2.10.5", "2.11.6")
+    case v if v.startsWith("0.12.") => Seq("2.9.3", "2.10.5")
+    case v if v.startsWith("0.13.") => Seq("2.10.5")
     case _ => sys.error(s"Unknown sbt version [$ver]")
   }
 }
