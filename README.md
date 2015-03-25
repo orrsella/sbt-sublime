@@ -11,15 +11,15 @@ See [Functionality](https://github.com/orrsella/sbt-sublime#functionality) and [
 To add sbt-sublime functionality to your project add the following to your `project/plugins.sbt` file:
 
 ```scala
-addSbtPlugin("com.orrsella" % "sbt-sublime" % "1.0.10")
+addSbtPlugin("com.orrsella" % "sbt-sublime" % "1.0.11")
 ```
 
 If you want to use it for more than one project, you can add it to your global plugins file, usually found at: `~/.sbt/plugins/plugins.sbt` and then have it available for all sbt projects. See [Using Plugins](http://www.scala-sbt.org/release/docs/Getting-Started/Using-Plugins.html) for additional information on sbt plugins.
 
 ### Requirements
 
-* sbt 0.12.x, 0.13.x
-* Scala 2.9.x, 2.10.x
+* sbt 0.13.x
+* Scala 2.10.x
 
 ### Troubleshooting
 
