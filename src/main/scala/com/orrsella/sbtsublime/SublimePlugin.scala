@@ -32,6 +32,13 @@ object SublimePlugin extends Plugin {
       "sublime-transitive",
       "Indicate whether to add sources for all dependencies transitively (including libraries that dependencies require)")
 
+  lazy val sublimeFolderExcludePatterns = SettingKey[Seq[String]](
+    "sublime-folder-exclude-patterns", "indicate which folders to exclude, see https://www.sublimetext.com/docs/2/projects.html")
+
+
+  lazy val sublimeFileExcludePatterns = SettingKey[Seq[String]](
+    "sublime-file-exclude-patterns", "indicate which folders to exclude, see https://www.sublimetext.com/docs/2/projects.html")
+
   lazy val sublimeProjectName = SettingKey[String]("sublime-project-name", "The name of the sublime project file")
   lazy val sublimeProjectDir = SettingKey[File]("sublime-project-dir", "The parent directory for the sublime project file")
   lazy val sublimeProjectFile = SettingKey[File]("sublime-project-file", "The sublime project file")
@@ -40,6 +47,8 @@ object SublimePlugin extends Plugin {
     Keys.commands ++= Seq(sublimeCommand, sublimeCommandCamel),
     sublimeExternalSourceDirectoryName <<= sublimeExternalSourceDirectoryName ?? "External Libraries",
     sublimeExternalSourceDirectoryParent <<= sublimeExternalSourceDirectoryParent or Keys.target,
+    sublimeFolderExcludePatterns <<= sublimeFolderExcludePatterns ?? List(),
+    sublimeFileExcludePatterns <<= sublimeFileExcludePatterns ?? List(),
     sublimeExternalSourceDirectory <<= sublimeExternalSourceDirectory or (sublimeExternalSourceDirectoryName, sublimeExternalSourceDirectoryParent) {
       (n, p) => new File(p, n)
     },
@@ -62,6 +71,8 @@ object SublimePlugin extends Plugin {
     lazy val transitive = (sublimeTransitive in currentRef get structure.data).get
     lazy val projectFile = (sublimeProjectFile in currentRef get structure.data).get
     lazy val rootDirectory = (Keys.baseDirectory in currentRef get structure.data).get
+    lazy val badDirectories = (sublimeFolderExcludePatterns in currentRef get structure.data).get
+    lazy val badFiles = (sublimeFileExcludePatterns in currentRef get structure.data).get
 
     log.info("Generating Sublime project for root directory: " + rootDirectory)
     log.info("Getting dependency libraries sources transitively: " + transitive)
@@ -102,7 +113,7 @@ object SublimePlugin extends Plugin {
 
     // create project file
     val srcDir = new SublimeProjectFolder(directory.getPath)
-    val projectFolder = new SublimeProjectFolder(rootDirectory.getPath)
+    val projectFolder = new SublimeProjectFolder(rootDirectory.getPath, folder_exclude_patterns=Some(badDirectories), file_exclude_patterns=Some(badFiles))
     val project =
       if (projectFile.exists) {
         val existingProject = SublimeProject.fromFile(projectFile)
