@@ -18,47 +18,40 @@ package com.orrsella.sbtsublime
 
 import sbt._
 
-object SublimePlugin extends Plugin {
-  lazy val sublimeExternalSourceDirectoryName = SettingKey[String](
-    "sublime-external-source-directory-name", "The directory name for external sources")
+object SublimePlugin extends AutoPlugin {
 
-  lazy val sublimeExternalSourceDirectoryParent = SettingKey[File](
-    "sublime-external-source-directory-parent", "Parent dir of the external sources dir")
+  object autoImport {
+    val sublimeExternalSourceDirectoryName = settingKey[String]("The directory name for external sources")
+    val sublimeExternalSourceDirectoryParent = settingKey[File]("Parent dir of the external sources dir")
+    val sublimeExternalSourceDirectory = settingKey[File]("Directory for external sources")
+    val sublimeTransitive = settingKey[Boolean]("Indicate whether to add sources for all dependencies transitively (including libraries that dependencies require)")
+    val sublimeFileExcludePatterns = settingKey[Seq[String]]("Indicate which files to exclude, see http://www.sublimetext.com/docs/3/projects.html")
+    val sublimeFolderExcludePatterns = settingKey[Seq[String]]("Indicate which folders to exclude, see http://www.sublimetext.com/docs/3/projects.html")
+    val sublimeProjectName = settingKey[String]("The name of the sublime project file")
+    val sublimeProjectDir = settingKey[File]("The parent directory for the sublime project file")
+    val sublimeProjectFile = settingKey[File]("The sublime project file")
 
-  lazy val sublimeExternalSourceDirectory = SettingKey[File](
-    "sublime-external-source-directory", "Directory for external sources")
+    lazy val sublimeSettings = Seq(
+      sublimeExternalSourceDirectoryName := "External Libraries",
+      sublimeExternalSourceDirectoryParent <<= Keys.target,
+      sublimeExternalSourceDirectory <<= (sublimeExternalSourceDirectoryName, sublimeExternalSourceDirectoryParent) { (n, p) => new File(p, n) },
+      sublimeTransitive := false,
+      sublimeFileExcludePatterns := Seq(),
+      sublimeFolderExcludePatterns := Seq(),
+      sublimeProjectName <<= Keys.name,
+      sublimeProjectDir <<= Keys.baseDirectory,
+      sublimeProjectFile <<= (sublimeProjectName, sublimeProjectDir) { (n, p) => new File(p, n + ".sublime-project") }
+    )
+  }
 
-  lazy val sublimeTransitive = SettingKey[Boolean](
-      "sublime-transitive",
-      "Indicate whether to add sources for all dependencies transitively (including libraries that dependencies require)")
+  import autoImport._
 
-  lazy val sublimeFolderExcludePatterns = SettingKey[Seq[String]](
-    "sublime-folder-exclude-patterns", "indicate which folders to exclude, see https://www.sublimetext.com/docs/2/projects.html")
-
-
-  lazy val sublimeFileExcludePatterns = SettingKey[Seq[String]](
-    "sublime-file-exclude-patterns", "indicate which folders to exclude, see https://www.sublimetext.com/docs/2/projects.html")
-
-  lazy val sublimeProjectName = SettingKey[String]("sublime-project-name", "The name of the sublime project file")
-  lazy val sublimeProjectDir = SettingKey[File]("sublime-project-dir", "The parent directory for the sublime project file")
-  lazy val sublimeProjectFile = SettingKey[File]("sublime-project-file", "The sublime project file")
-
-  override lazy val settings = Seq(
-    Keys.commands ++= Seq(sublimeCommand, sublimeCommandCamel),
-    sublimeExternalSourceDirectoryName <<= sublimeExternalSourceDirectoryName ?? "External Libraries",
-    sublimeExternalSourceDirectoryParent <<= sublimeExternalSourceDirectoryParent or Keys.target,
-    sublimeFolderExcludePatterns <<= sublimeFolderExcludePatterns ?? List(),
-    sublimeFileExcludePatterns <<= sublimeFileExcludePatterns ?? List(),
-    sublimeExternalSourceDirectory <<= sublimeExternalSourceDirectory or (sublimeExternalSourceDirectoryName, sublimeExternalSourceDirectoryParent) {
-      (n, p) => new File(p, n)
-    },
-    sublimeTransitive <<= sublimeTransitive ?? false,
-    sublimeProjectName <<= sublimeProjectName or Keys.name,
-    sublimeProjectDir <<= sublimeProjectDir or Keys.baseDirectory,
-    sublimeProjectFile <<= sublimeProjectFile or (sublimeProjectName, sublimeProjectDir) { (n, p) => new File(p, n + ".sublime-project") })
+  override def trigger = allRequirements
+  override lazy val projectSettings = sublimeSettings ++ Seq(Keys.commands ++= Seq(sublimeCommand, sublimeCommandCamel))
 
   lazy val sublimeCommand = Command.command("gen-sublime") { state => doCommand(state) }
   lazy val sublimeCommandCamel = Command.command("genSublime") { state => doCommand(state) }
+
 
   def doCommand(state: State): State = {
     val log = state.log
@@ -71,8 +64,8 @@ object SublimePlugin extends Plugin {
     lazy val transitive = (sublimeTransitive in currentRef get structure.data).get
     lazy val projectFile = (sublimeProjectFile in currentRef get structure.data).get
     lazy val rootDirectory = (Keys.baseDirectory in currentRef get structure.data).get
-    lazy val badDirectories = (sublimeFolderExcludePatterns in currentRef get structure.data).get
-    lazy val badFiles = (sublimeFileExcludePatterns in currentRef get structure.data).get
+    lazy val fileExcludePatterns = (sublimeFileExcludePatterns in currentRef get structure.data).get
+    lazy val folderExcludePatterns = (sublimeFolderExcludePatterns in currentRef get structure.data).get
 
     log.info("Generating Sublime project for root directory: " + rootDirectory)
     log.info("Getting dependency libraries sources transitively: " + transitive)
@@ -112,14 +105,19 @@ object SublimePlugin extends Plugin {
     setDirectoryTreeReadOnly(directory)
 
     // create project file
-    val srcDir = new SublimeProjectFolder(directory.getPath)
-    val projectFolder = new SublimeProjectFolder(rootDirectory.getPath, folder_exclude_patterns=Some(badDirectories), file_exclude_patterns=Some(badFiles))
+    val srcFolder = new SublimeProjectFolder(directory.getPath)
+
+    val projectFolder = new SublimeProjectFolder(
+      rootDirectory.getPath,
+      file_exclude_patterns = Option(fileExcludePatterns).filter(_.nonEmpty),
+      folder_exclude_patterns = Option(folderExcludePatterns).filter(_.nonEmpty))
+
     val project =
       if (projectFile.exists) {
         val existingProject = SublimeProject.fromFile(projectFile)
         if (existingProject.folders.exists(f => f.path == directory.getPath)) existingProject
-        else new SublimeProject(existingProject.folders :+ srcDir, existingProject.settings, existingProject.build_systems)
-      } else new SublimeProject(Seq(projectFolder, srcDir))
+        else new SublimeProject(existingProject.folders :+ srcFolder, existingProject.settings, existingProject.build_systems)
+      } else new SublimeProject(Seq(projectFolder, srcFolder))
 
     log.info("Writing project to file: " + projectFile)
     SublimeProject.writeFile(projectFile, project)

@@ -18,7 +18,7 @@ If you want to use it for more than one project, you can add it to your global p
 
 ### Requirements
 
-* sbt 0.13.x
+* sbt 0.13.5+ (requires `AutoPlugin`)
 * Scala 2.10.x
 
 ### Troubleshooting
@@ -68,6 +68,10 @@ The following custom sbt settings are used:
 
 * `sublimeProjectDir` – Where the generated Sublime project file will be saved. Default value: sbt's `baseDirectory` setting, that is the root of your project. This can be set to anywhere on your machine, it doesn't have to be in the project's root directory (but would be convenient). If you already have a project file, or like to keep all project files together in some special folder, just point there.
 
+* `sublimeFileExcludePatterns` – Optional file patterns to be excluded from the project tree. (See [Projects](http://www.sublimetext.com/docs/3/projects.html) for more details.)
+
+* `sublimeFolderExcludePatterns` – Optional folder patterns to be excluded from the project tree. (See [Projects](http://www.sublimetext.com/docs/3/projects.html) for more details.)
+
 To change any/all of these settings (to these arbitrary alternative values), add the following to your `build.sbt` file:
 
 ```scala
@@ -80,6 +84,10 @@ sublimeTransitive := true
 sublimeProjectName := "MySublProjectFile"
 
 sublimeProjectDir := new java.io.File("/Users/orr/Dev/Projects")
+
+sublimeFileExcludePatterns := Seq("*.css")
+
+sublimeFolderExcludePatterns := Seq("backup", "target")
 ```
 
 ## Notes
