@@ -4,7 +4,7 @@ name := "sbt-sublime"
 
 organization := "com.orrsella"
 
-libraryDependencies += "io.spray" %%  "spray-json" % "1.3.1"
+libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2"
 
 scalaVersion in Global := "2.10.5"
 
