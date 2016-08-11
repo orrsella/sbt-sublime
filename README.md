@@ -14,7 +14,9 @@ To add sbt-sublime functionality to your project add the following to your `proj
 addSbtPlugin("com.orrsella" % "sbt-sublime" % "1.1.1")
 ```
 
-If you want to use it for more than one project, you can add it to your global plugins file, usually found at: `~/.sbt/plugins/plugins.sbt` and then have it available for all sbt projects. See [Using Plugins](http://www.scala-sbt.org/release/docs/Getting-Started/Using-Plugins.html) for additional information on sbt plugins.
+If you want to use it for more than one project, you can add it to your global plugins file, usually found at: `~/.sbt/0.13/plugins/plugins.sbt` and then have it available for all sbt projects. See [Using Plugins](http://www.scala-sbt.org/release/docs/Getting-Started/Using-Plugins.html) for additional information on sbt plugins.
+
+If you'd like to configure the global plugin you'll need to add an sbt file in `~/.sbt/0.13/`. In that file you need to import `com.orrsella.sbtsublime.SublimePlugin.autoImport._` and then you can [configure](https://github.com/orrsella/sbt-sublime#configuration) as normal.
 
 ### Requirements
 
