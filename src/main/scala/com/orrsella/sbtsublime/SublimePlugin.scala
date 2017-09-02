@@ -30,21 +30,21 @@ object SublimePlugin extends AutoPlugin {
     val sublimeProjectName = settingKey[String]("The name of the sublime project file")
     val sublimeProjectDir = settingKey[File]("The parent directory for the sublime project file")
     val sublimeProjectFile = settingKey[File]("The sublime project file")
-
-    lazy val sublimeSettings = Seq(
-      sublimeExternalSourceDirectoryName := "External Libraries",
-      sublimeExternalSourceDirectoryParent <<= Keys.target,
-      sublimeExternalSourceDirectory <<= (sublimeExternalSourceDirectoryName, sublimeExternalSourceDirectoryParent) { (n, p) => new File(p, n) },
-      sublimeTransitive := false,
-      sublimeFileExcludePatterns := Seq(),
-      sublimeFolderExcludePatterns := Seq(),
-      sublimeProjectName <<= Keys.name,
-      sublimeProjectDir <<= Keys.baseDirectory,
-      sublimeProjectFile <<= (sublimeProjectName, sublimeProjectDir) { (n, p) => new File(p, n + ".sublime-project") }
-    )
   }
 
   import autoImport._
+
+  lazy val sublimeSettings: Seq[Def.Setting[_]] = Seq(
+    sublimeExternalSourceDirectoryName := "External Libraries",
+    sublimeExternalSourceDirectoryParent := Keys.target.value,
+    sublimeExternalSourceDirectory := new File(sublimeExternalSourceDirectoryParent.value, sublimeExternalSourceDirectoryName.value),
+    sublimeTransitive := false,
+    sublimeFileExcludePatterns := Seq(),
+    sublimeFolderExcludePatterns := Seq(),
+    sublimeProjectName := Keys.name.value,
+    sublimeProjectDir := Keys.baseDirectory.value,
+    sublimeProjectFile := new File(sublimeProjectDir.value, sublimeProjectName.value + ".sublime-project")
+  )
 
   override def trigger = allRequirements
   override lazy val projectSettings = sublimeSettings ++ Seq(Keys.commands ++= Seq(sublimeCommand, sublimeCommandCamel))

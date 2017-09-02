@@ -4,26 +4,16 @@ name := "sbt-sublime"
 
 organization := "com.orrsella"
 
-libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2"
-
-scalaVersion in Global := "2.10.5"
+libraryDependencies += "io.spray" %%  "spray-json" % "1.3.3"
 
 scalacOptions ++= Seq("-feature")
 
-releaseSettings
-
 // publishing
-crossScalaVersions <<= sbtVersion { ver =>
-  ver match {
-    case v if v.startsWith("0.12.") => Seq("2.9.3", "2.10.5")
-    case v if v.startsWith("0.13.") => Seq("2.10.5")
-    case _ => sys.error(s"Unknown sbt version [$ver]")
-  }
-}
+crossSbtVersions := Vector("0.13.16", "1.0.1")
 
-publishTo <<= version { v: String =>
+publishTo := {
   val nexus = "https://oss.sonatype.org/"
-  if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots")
+  if (version.value.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots")
   else Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 
@@ -55,7 +45,21 @@ pomExtra := (
   </developers>
 )
 
-// release
-import sbtrelease.ReleasePlugin.ReleaseKeys._
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
-publishArtifactsAction := PgpKeys.publishSigned.value
+import ReleaseTransformations._
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommand("publishSigned"),
+  setNextVersion,
+  commitNextVersion,
+  releaseStepCommand("sonatypeReleaseAll"),
+  pushChanges
+)
